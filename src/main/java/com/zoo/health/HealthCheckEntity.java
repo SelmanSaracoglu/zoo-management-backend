@@ -30,8 +30,8 @@ public class HealthCheckEntity {
     @Column(name = "respiration_rpm")
     private Integer respirationRpm;
 
-    @Column(length = 100)
-    private String condition;
+    @Column(name = "condition_text", length = 100)
+    private String conditionText;
 
     @Column(length = 255)
     private String notes;
@@ -50,8 +50,8 @@ public class HealthCheckEntity {
     public void setTemperatureC(BigDecimal temperatureC) { this.temperatureC = temperatureC; }
     public Integer getRespirationRpm() { return respirationRpm; }
     public void setRespirationRpm(Integer respirationRpm) { this.respirationRpm = respirationRpm; }
-    public String getCondition() { return condition; }
-    public void setCondition(String condition) { this.condition = condition; }
+    public String getCondition() { return conditionText; }
+    public void setCondition(String condition) { this.conditionText = condition; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 }

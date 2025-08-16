@@ -11,7 +11,7 @@ import java.util.List;
 public interface FeedLogRepository extends JpaRepository<FeedLogEntity, Long> {
 
     // Belirli hayvanın tüm feed kayıtları (zaman sıralı)
-    List<FeedLogEntity> findByAnimal_InOrderByFeedTimeDesc(Long animalId);
+    List<FeedLogEntity> findByAnimal_IdOrderByFeedTimeDesc(Long animalId);
 
     // Tarih aralığı filtreli (opsiyonel kullanım)
     List<FeedLogEntity> findByAnimal_IdAndFeedTimeBetweenOrderByFeedTimeDesc(

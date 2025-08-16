@@ -36,7 +36,7 @@ public class FeedLogService {
         return feedLogRepository.save(entity);
     }
     public List<FeedLogEntity> listByAnimal(Long animalId) {
-        return feedLogRepository.findByAnimal_InOrderByFeedTimeDesc(animalId);
+        return feedLogRepository.findByAnimal_IdOrderByFeedTimeDesc(animalId);
     }
 
     public List<FeedLogEntity> listByAnimalAndRange(Long animalId, LocalDateTime from, LocalDateTime to) {

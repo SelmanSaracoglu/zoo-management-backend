@@ -2,10 +2,12 @@ package com.zoo.diet;
 
 import com.zoo.animal.AnimalEntity;
 import com.zoo.animal.AnimalRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class DietPlanService {
 
     private final DietPlanRepository dietPlanRepository;
