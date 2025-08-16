@@ -1,6 +1,10 @@
 package com.zoo.staff;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.zoo.animal.AnimalEntity;
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "staff")
@@ -12,26 +16,37 @@ public class StaffEntity {
     private Long id;
 
     @Column(name = "full_name", nullable = false, length = 80)
-    private String fullName;
+    private String name;
 
     @Column(nullable = false, length = 40)
-    private String role; // Keeper, Vet, Technician ...
+    private String role; // FE enum değerleri: KEEPER, VET, ADMIN
 
-    // JPA requires a no-args constructor
-    protected StaffEntity() { }
+    @Column(length = 120)
+    private String email;
 
-    // Optional convenience constructor for required fields
-    public StaffEntity(String fullName, String role) {
-        this.fullName = fullName;
-        this.role = role;
-    }
+    @Column(length = 40)
+    private String phone;
 
-    // Getters (no setter for id)
+    @ManyToMany
+    @JoinTable(
+            name = "staff_animal",
+            joinColumns = @JoinColumn(name = "staff_id"),
+            inverseJoinColumns = @JoinColumn(name = "animal_id")
+    )
+    @JsonIgnore // entity JSON'ında ilişkiyi gizleyeceğiz; DTO’da id'leri döneriz
+    private Set<AnimalEntity> animals = new HashSet<>();
+
+    protected StaffEntity() {}
+
+    // getters/setters
     public Long getId() { return id; }
-    public String getFullName() { return fullName; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     public String getRole() { return role; }
-
-    // Setters for mutable fields
-    public void setFullName(String fullName) { this.fullName = fullName; }
     public void setRole(String role) { this.role = role; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public Set<AnimalEntity> getAnimals() { return animals; }
 }
