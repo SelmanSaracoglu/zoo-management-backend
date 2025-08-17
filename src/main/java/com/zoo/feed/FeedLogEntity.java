@@ -1,6 +1,7 @@
 package com.zoo.feed;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zoo.animal.AnimalEntity;
 import jakarta.persistence.*;
 
@@ -17,6 +18,7 @@ public class FeedLogEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "animal_id", nullable = false)
+    @JsonIgnore
     private AnimalEntity animal;
 
     @Column(name = "feed_time", nullable = false)

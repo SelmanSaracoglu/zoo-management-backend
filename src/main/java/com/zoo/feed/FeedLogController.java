@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/animals")
 public class FeedLogController {
 
     private final FeedLogService feedLogService;
@@ -19,7 +19,7 @@ public class FeedLogController {
     }
 
     // Create feed log for an animal
-    @PostMapping("api/animals/{animalId}/feeds")
+    @PostMapping("/{animalId}/feed-logs")
     public ResponseEntity<FeedLogEntity> create(
             @PathVariable Long animalId,
             @RequestBody FeedLogEntity body
@@ -28,7 +28,7 @@ public class FeedLogController {
     }
 
     // List feeds by animal (optional date range)
-    @GetMapping("/api/animals/{animalId}/feeds")
+    @GetMapping("/{animalId}/feed-logs")
     public ResponseEntity<List<FeedLogEntity>> list(
             @PathVariable Long animalId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
@@ -41,7 +41,7 @@ public class FeedLogController {
     }
 
     // Get one
-    @GetMapping("/api/feeds/{feedId}")
+    @GetMapping("/feed-logs/{feedId}")
     public ResponseEntity<FeedLogEntity> getOne(@PathVariable Long feedId) {
         return feedLogService.findById(feedId)
                 .map(ResponseEntity::ok)
@@ -49,7 +49,7 @@ public class FeedLogController {
     }
 
     // Update
-    @PutMapping("/api/feeds/{feedId}")
+    @PutMapping("/feed-logs/{feedId}")
     public ResponseEntity<FeedLogEntity> update(
             @PathVariable Long feedId,
             @RequestBody FeedLogEntity body
@@ -60,7 +60,7 @@ public class FeedLogController {
     }
 
     // Delete
-    @DeleteMapping("/api/feeds/{feedId}")
+    @DeleteMapping("/feed-logs/{feedId}")
     public ResponseEntity<Void> delete(@PathVariable Long feedId) {
         feedLogService.delete(feedId);
         return ResponseEntity.noContent().build();
