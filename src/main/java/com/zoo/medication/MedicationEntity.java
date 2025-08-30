@@ -1,6 +1,8 @@
 package com.zoo.medication;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zoo.animal.AnimalEntity;
 import jakarta.persistence.*;
 
@@ -17,6 +19,7 @@ public class MedicationEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "animal_id", nullable = false)
+    @JsonIgnore
     private AnimalEntity animal;
 
     @Column(name = "med_name", length = 100, nullable = false)
@@ -50,4 +53,9 @@ public class MedicationEntity {
     public void setGivenAt(LocalDateTime givenAt) { this.givenAt = givenAt; }
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
+
+    @JsonProperty("animalId")
+    public Long getAnimalId() {
+        return (animal != null) ? animal.getId() : null;
+    }
 }

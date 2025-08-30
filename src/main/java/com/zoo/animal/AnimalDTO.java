@@ -1,14 +1,31 @@
 package com.zoo.animal;
 
+import jakarta.validation.constraints.*;
+
 public class AnimalDTO {
     private Long id;
+
+    @NotBlank @Size(max = 120)
     private String name;
+
+    @NotBlank @Size(max = 120)
     private String species;
+
+    @Size(max = 120)
     private String habitat;
+
+    @Size(max = 120)
     private String diet;
+
+    @Size(max = 120)
     private String originCountry;
+
+    @Min(0) @Max(200)
     private Integer age;
+
+    @Pattern(regexp = "MALE|FEMALE|UNKNOWN", message = "gender must be MALE, FEMALE or UNKNOWN")
     private String gender;
+
     private boolean canSwim;
     private boolean canFly;
 

@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/animals")
 public class AnimalController {
-    private AnimalService animalService;
+    private final AnimalService animalService;
 
     public AnimalController(AnimalService animalService){
         this.animalService = animalService;
     }
 
     @PostMapping
-    public ResponseEntity<AnimalDTO> createAnimal(@RequestBody AnimalDTO dto) {
+    public ResponseEntity<AnimalDTO> createAnimal(@RequestBody @jakarta.validation.Valid AnimalDTO dto) {
         AnimalDTO created = animalService.createAnimal(dto);
         return ResponseEntity.ok(created);
     }
@@ -51,7 +51,7 @@ public class AnimalController {
 
     // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<AnimalDTO> updateAnimal(@PathVariable Long id, @RequestBody AnimalDTO dto) {
+    public ResponseEntity<AnimalDTO> updateAnimal(@PathVariable Long id, @RequestBody @jakarta.validation.Valid AnimalDTO dto) {
         return animalService.updateAnimal(id, dto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

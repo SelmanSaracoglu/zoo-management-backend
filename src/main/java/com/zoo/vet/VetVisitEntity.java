@@ -1,5 +1,6 @@
 package com.zoo.vet;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zoo.animal.AnimalEntity;
 import jakarta.persistence.*;
 
@@ -17,6 +18,7 @@ public class VetVisitEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "animal_id", nullable = false)
+    @JsonIgnore // ❗ JSON’a animal nesnesini dahil etme (döngüyü kes)
     private AnimalEntity animal;
 
     @Column(name = "visit_time", nullable = false)

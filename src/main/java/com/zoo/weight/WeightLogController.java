@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api")
 public class WeightLogController {
 
     private final WeightLogService weightLogService;
@@ -17,7 +17,7 @@ public class WeightLogController {
         this.weightLogService = weightLogService;
     }
 
-    @PostMapping("/api/animals/{animalId}/weights")
+    @PostMapping("/animals/{animalId}/weights")
     public ResponseEntity<WeightLogEntity> create(
             @PathVariable Long animalId,
             @RequestBody WeightLogEntity body
@@ -25,15 +25,9 @@ public class WeightLogController {
         return ResponseEntity.ok(weightLogService.createForAnimal(animalId, body));
     }
 
-    @GetMapping("/api/animals/{animalId}/weights")
+    @GetMapping("/animals/{animalId}/weights")
     public ResponseEntity<List<WeightLogEntity>> list(
-            @PathVariable Long animalId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
-    ) {
-        if (from != null && to != null) {
-            return ResponseEntity.ok(weightLogService.listByAnimalAndRange(animalId, from, to));
-        }
+            @PathVariable Long animalId) {
         return ResponseEntity.ok(weightLogService.listByAnimal(animalId));
     }
 
@@ -42,6 +36,13 @@ public class WeightLogController {
         return weightLogService.findById(weightId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/animals/{animalId}/weights/latest")
+    public ResponseEntity<WeightLogEntity> latest(@PathVariable Long animalId) {
+        return weightLogService.latestByAnimal(animalId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @PutMapping("/api/weights/{weightId}")

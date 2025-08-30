@@ -1,6 +1,7 @@
 package com.zoo.weight;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zoo.animal.AnimalEntity;
 import jakarta.persistence.*;
 
@@ -18,6 +19,7 @@ public class WeightLogEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "animal_id", nullable = false)
+    @JsonIgnore
     private AnimalEntity animal;
 
     @Column(name = "measured_at", nullable = false)

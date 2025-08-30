@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api")
 public class MedicationController {
 
     private final MedicationService medicationService;
@@ -19,7 +19,7 @@ public class MedicationController {
     }
 
     // Create medication for an animal
-    @PostMapping("/api/animals/{animalId}/medications")
+    @PostMapping("/animals/{animalId}/medications")
     public ResponseEntity<MedicationEntity> create(
             @PathVariable Long animalId,
             @RequestBody MedicationEntity body
@@ -28,20 +28,20 @@ public class MedicationController {
     }
 
     // List medications by animal (optional date range)
-    @GetMapping("/api/animals/{animalId}/medications")
-    public ResponseEntity<List<MedicationEntity>> list(
-            @PathVariable Long animalId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
-    ) {
-        if (from != null && to != null) {
-            return ResponseEntity.ok(medicationService.listByAnimalAndRange(animalId, from, to));
-        }
-        return ResponseEntity.ok(medicationService.listByAnimal(animalId));
+    @GetMapping("/animals/{animalId}/medications")
+    public ResponseEntity<List<MedicationEntity>> list( @PathVariable Long animalId    )
+    { return ResponseEntity.ok(medicationService.listByAnimal(animalId)); }
+
+    // Latest by animal (opsiyonel)
+    @GetMapping("/animals/{animalId}/medications/latest")
+    public ResponseEntity<MedicationEntity> latest(@PathVariable Long animalId) {
+        return medicationService.latestByAnimal(animalId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build()); // 204 if none
     }
 
     // Get one
-    @GetMapping("/api/medications/{medId}")
+    @GetMapping("/medications/{medId}")
     public ResponseEntity<MedicationEntity> getOne(@PathVariable Long medId) {
         return medicationService.findById(medId)
                 .map(ResponseEntity::ok)
@@ -49,7 +49,7 @@ public class MedicationController {
     }
 
     // Update
-    @PutMapping("/api/medications/{medId}")
+    @PutMapping("/medications/{medId}")
     public ResponseEntity<MedicationEntity> update(
             @PathVariable Long medId,
             @RequestBody MedicationEntity body
@@ -60,7 +60,7 @@ public class MedicationController {
     }
 
     // Delete
-    @DeleteMapping("/api/medications/{medId}")
+    @DeleteMapping("/medications/{medId}")
     public ResponseEntity<Void> delete(@PathVariable Long medId) {
         medicationService.delete(medId);
         return ResponseEntity.noContent().build();

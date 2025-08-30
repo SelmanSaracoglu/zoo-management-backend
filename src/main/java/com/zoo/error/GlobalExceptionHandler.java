@@ -49,6 +49,20 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, req, "Validation failed", fields);
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(com.zoo.error.NotFoundException.class)
+    public org.springframework.http.ResponseEntity<ErrorResponse>
+    handleNotFound(com.zoo.error.NotFoundException ex,
+                   jakarta.servlet.http.HttpServletRequest req) {
+        return build(org.springframework.http.HttpStatus.NOT_FOUND, req, ex.getMessage(), null);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(com.zoo.error.ConflictException.class)
+    public org.springframework.http.ResponseEntity<ErrorResponse>
+    handleConflict(com.zoo.error.ConflictException ex,
+                   jakarta.servlet.http.HttpServletRequest req) {
+        return build(org.springframework.http.HttpStatus.CONFLICT, req, ex.getMessage(), null);
+    }
+
     // 500 – yakalanmayan her şey
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleOther(Exception ex, HttpServletRequest req) {
