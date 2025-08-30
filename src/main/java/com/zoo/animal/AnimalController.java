@@ -1,12 +1,19 @@
 package com.zoo.animal;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springdoc.core.annotations.ParameterObject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/animals")
 public class AnimalController {
     private AnimalService animalService;
 
@@ -20,9 +27,19 @@ public class AnimalController {
         return ResponseEntity.ok(created);
     }
 
+    @Operation(summary = "Hayvanları listele")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Liste döner"),
+            @ApiResponse(responseCode = "401", description = "Token yok/geçersiz"),
+            @ApiResponse(responseCode = "403", description = "Yetki yok (varsa)")
+    })
+
     @GetMapping
-    public ResponseEntity<List<AnimalDTO>> getAnimals(){
-        return ResponseEntity.ok(animalService.getAllAnimals());
+    public ResponseEntity<Page<AnimalDTO>> getAnimals(
+            @ParameterObject
+            @PageableDefault(size = 10) Pageable pageable  // varsayılan 10 kayıt
+    ){
+        return ResponseEntity.ok(animalService.getAnimalsPage(pageable));
     }
 
     @GetMapping("/{id}")

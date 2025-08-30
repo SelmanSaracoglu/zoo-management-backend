@@ -7,7 +7,7 @@ public class AnimalDTO {
     private String habitat;
     private String diet;
     private String originCountry;
-    private int age;
+    private Integer age;
     private String gender;
     private boolean canSwim;
     private boolean canFly;

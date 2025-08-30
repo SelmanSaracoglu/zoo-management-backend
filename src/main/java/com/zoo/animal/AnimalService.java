@@ -1,5 +1,7 @@
 package com.zoo.animal;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,7 +60,12 @@ public class AnimalService {
         return animalRepository.findAll()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public Page<AnimalDTO> getAnimalsPage(Pageable pageable) {
+        return animalRepository.findAll(pageable)
+                .map(this::convertToDTO); // Aynı mapper'ı kullan
     }
 
     // READ - One
