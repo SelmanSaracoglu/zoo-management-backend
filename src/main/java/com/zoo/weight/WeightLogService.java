@@ -2,6 +2,7 @@ package com.zoo.weight;
 
 import com.zoo.animal.AnimalEntity;
 import com.zoo.animal.AnimalRepository;
+import com.zoo.diet.DietPlanEntity;
 import com.zoo.error.ConflictException;
 import com.zoo.error.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,6 @@ public class WeightLogService {
         }
         return weightLogRepository.findFirstByAnimal_IdOrderByMeasuredAtDesc(animalId);
     }
-
 
     public Optional<WeightLogEntity> findById(Long weightId) {
         return weightLogRepository.findById(weightId);

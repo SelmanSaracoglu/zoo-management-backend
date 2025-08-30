@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/animals")
+@RequestMapping("/api")
 public class FeedLogController {
 
     private final FeedLogService feedLogService;
@@ -19,29 +19,26 @@ public class FeedLogController {
     }
 
     // Create feed log for an animal
-    @PostMapping("/{animalId}/feed-logs")
-    public ResponseEntity<FeedLogEntity> create(
-            @PathVariable Long animalId,
-            @RequestBody FeedLogEntity body
-    ) {
+    @PostMapping("/animals/{animalId}/feeds")
+    public ResponseEntity<FeedLogEntity> create(@PathVariable Long animalId,
+                                                @RequestBody FeedLogEntity body) {
         return ResponseEntity.ok(feedLogService.createForAnimal(animalId, body));
     }
 
-    // List feeds by animal (optional date range)
-    @GetMapping("/{animalId}/feed-logs")
-    public ResponseEntity<List<FeedLogEntity>> list(
-            @PathVariable Long animalId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
-    ) {
-        if (from != null && to != null) {
-            return ResponseEntity.ok(feedLogService.listByAnimalAndRange(animalId, from, to));
-        }
+    @GetMapping("/animals/{animalId}/feeds")
+    public ResponseEntity<List<FeedLogEntity>> list( @PathVariable Long animalId ) {
         return ResponseEntity.ok(feedLogService.listByAnimal(animalId));
     }
 
+    @GetMapping("/animals/{animalId}/feeds/latest")
+    public ResponseEntity<FeedLogEntity> latest(@PathVariable Long animalId) {
+        return feedLogService.latestByAnimal(animalId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
     // Get one
-    @GetMapping("/feed-logs/{feedId}")
+    @GetMapping("/feeds/{feedId}")
     public ResponseEntity<FeedLogEntity> getOne(@PathVariable Long feedId) {
         return feedLogService.findById(feedId)
                 .map(ResponseEntity::ok)
@@ -49,7 +46,7 @@ public class FeedLogController {
     }
 
     // Update
-    @PutMapping("/feed-logs/{feedId}")
+    @PutMapping("/feeds/{feedId}")
     public ResponseEntity<FeedLogEntity> update(
             @PathVariable Long feedId,
             @RequestBody FeedLogEntity body
@@ -60,7 +57,7 @@ public class FeedLogController {
     }
 
     // Delete
-    @DeleteMapping("/feed-logs/{feedId}")
+    @DeleteMapping("/feeds/{feedId}")
     public ResponseEntity<Void> delete(@PathVariable Long feedId) {
         feedLogService.delete(feedId);
         return ResponseEntity.noContent().build();

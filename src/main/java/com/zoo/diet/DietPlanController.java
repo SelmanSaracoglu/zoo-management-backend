@@ -31,6 +31,13 @@ public class DietPlanController {
         return ResponseEntity.ok(dietPlanService.findByAnimal(animalId));
     }
 
+    @GetMapping("/api/animals/{animalId}/diet-plans/latest")
+    public ResponseEntity<DietPlanEntity> latest(@PathVariable Long animalId) {
+        return dietPlanService.latestByAnimal(animalId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build()); // hiç plan yoksa 204
+    }
+
     // Get one
     @GetMapping("/api/diet-plans/{planId}")
     public ResponseEntity<DietPlanEntity> getOne(@PathVariable Long planId) {

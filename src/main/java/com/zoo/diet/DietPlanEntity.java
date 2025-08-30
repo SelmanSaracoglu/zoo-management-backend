@@ -1,6 +1,8 @@
 package com.zoo.diet;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zoo.animal.AnimalEntity;
 import jakarta.persistence.*;
 
@@ -17,6 +19,7 @@ public class DietPlanEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "animal_id", nullable = false)
+    @JsonIgnore
     private AnimalEntity animal;
 
     @Column(name = "calories_kcal")
@@ -47,6 +50,9 @@ public class DietPlanEntity {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+
+    @JsonProperty("animalId")
+    public Long getAnimalId() { return (animal != null) ? animal.getId() : null; }
 
 
 }
