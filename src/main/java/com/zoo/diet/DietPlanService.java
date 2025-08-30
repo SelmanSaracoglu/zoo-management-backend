@@ -86,6 +86,7 @@ public DietPlanEntity createForAnimal(Long animalId, DietPlanEntity body) {
         return dietPlanRepository.findById(planId).map(existing -> {
             Long animalId = existing.getAnimal().getId();
 
+
             // 400
             if (body.getStartDate() == null || body.getEndDate() == null) {
                 throw new BadRequestException("startDate and endDate must not be null");
