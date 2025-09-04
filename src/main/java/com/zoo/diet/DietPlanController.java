@@ -1,9 +1,11 @@
 package com.zoo.diet;
 
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -15,49 +17,60 @@ public class DietPlanController {
         this.dietPlanService = dietPlanService;
     }
 
-    // Create plan for an animal (DTO'suz)
+    // POST /api/v1/animals/{animalId}/diet-plans
     @PostMapping("/animals/{animalId}/diet-plans")
-    public ResponseEntity<DietPlanEntity> createForAnimal(
+    public ResponseEntity<DietPlanDto> createForAnimal(
             @PathVariable Long animalId,
-            @RequestBody DietPlanEntity body) {
+            @RequestBody @Valid DietPlanDto body) {
+        body.setAnimalId(animalId);
+        // Servis entity bekliyorsa: boş entity oluşturup DTO’dan doldur
+        DietPlanEntity toCreate = DietPlanMapper.toEntity(body, new DietPlanEntity());
+        DietPlanEntity created = dietPlanService.createForAnimal(animalId, toCreate);
 
-        DietPlanEntity created = dietPlanService.createForAnimal(animalId, body);
-        return ResponseEntity.ok(created);
+        DietPlanDto out = DietPlanMapper.toDto(created);
+        return ResponseEntity
+                .created(URI.create("/api/v1/diet-plans/" + out.getId()))
+                .body(out);
     }
 
-    // List plans by animal
+    // GET /api/v1/animals/{animalId}/diet-plans
     @GetMapping("/animals/{animalId}/diet-plans")
-    public ResponseEntity<List<DietPlanEntity>> listByAnimal(@PathVariable Long animalId) {
-        return ResponseEntity.ok(dietPlanService.findByAnimal(animalId));
+    public ResponseEntity<List<DietPlanDto>> listByAnimal(@PathVariable Long animalId) {
+        List<DietPlanDto> out = dietPlanService.findByAnimal(animalId)
+                .stream().map(DietPlanMapper::toDto).toList();
+        return ResponseEntity.ok(out);
     }
 
+    // GET /api/v1/animals/{animalId}/diet-plans/latest
     @GetMapping("/animals/{animalId}/diet-plans/latest")
-    public ResponseEntity<DietPlanEntity> latest(@PathVariable Long animalId) {
+    public ResponseEntity<DietPlanDto> latest(@PathVariable Long animalId) {
         return dietPlanService.latestByAnimal(animalId)
-                .map(ResponseEntity::ok)
+                .map(e -> ResponseEntity.ok(DietPlanMapper.toDto(e)))
                 .orElseGet(() -> ResponseEntity.noContent().build()); // hiç plan yoksa 204
     }
 
-    // Get one
+    // GET /api/v1/diet-plans/{planId}
     @GetMapping("/diet-plans/{planId}")
-    public ResponseEntity<DietPlanEntity> getOne(@PathVariable Long planId) {
+    public ResponseEntity<DietPlanDto> getOne(@PathVariable Long planId) {
         return dietPlanService.findById(planId)
-                .map(ResponseEntity::ok)
+                .map(e -> ResponseEntity.ok(DietPlanMapper.toDto(e)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Update (ID sabit, animal sabit)
+
+    // PUT /api/v1/diet-plans/{planId}
     @PutMapping("/diet-plans/{planId}")
-    public ResponseEntity<DietPlanEntity> update(
+    public ResponseEntity<DietPlanDto> update(
             @PathVariable Long planId,
-            @RequestBody DietPlanEntity body) {
+            @RequestBody @Valid DietPlanDto body) {
 
-        return dietPlanService.update(planId, body)
-                .map(ResponseEntity::ok)
+        // Servis update(entity) döndürüyor kabul edelim
+        return dietPlanService.update(planId, DietPlanMapper.toEntity(body, new DietPlanEntity()))
+                .map(e -> ResponseEntity.ok(DietPlanMapper.toDto(e)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Delete
+    // DELETE /api/v1/diet-plans/{planId}
     @DeleteMapping("/diet-plans/{planId}")
     public ResponseEntity<Void> delete(@PathVariable Long planId) {
         dietPlanService.delete(planId);
