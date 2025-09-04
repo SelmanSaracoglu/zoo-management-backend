@@ -4,7 +4,13 @@ package com.zoo.animal;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "animals")
+@Table(
+    name = "animals",
+    indexes = {
+        @Index(name = "idx_animals_species", columnList = "species"),
+        @Index(name = "idx_animals_origin_country", columnList = "origin_country")
+    }
+)
 public class AnimalEntity {
 
     @Id
@@ -12,24 +18,42 @@ public class AnimalEntity {
     @Column(name = "animal_id")
     private Long id;
 
+    @Column(length = 120, nullable = false)
     private String name;
+
+    @Column(length = 120, nullable = false)
     private String species;
+
+    @Column(length = 120)
     private String habitat;
+
+    @Column(length = 120)
     private String diet;
 
-    @Column(name = "origin_country")
+    @Column(name = "origin_country", length = 120)
     private String originCountry;
 
-    private int age;
+    private Integer age;
 
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16, nullable = false)
+    private Gender gender = Gender.UNKNOWN;
+
     private boolean canSwim;
     private boolean canFly;
 
     public AnimalEntity() {}
 
-    public AnimalEntity(Long id, String name, String species, String habitat, String diet,
-                        String originCountry, int age, String gender, boolean canSwim, boolean canFly) {
+    public AnimalEntity(Long id,
+                        String name,
+                        String species,
+                        String habitat,
+                        String diet,
+                        String originCountry,
+                        Integer age,
+                        Gender gender,
+                        boolean canSwim,
+                        boolean canFly) {
         this.id = id;
         this.name = name;
         this.species = species;
@@ -37,14 +61,13 @@ public class AnimalEntity {
         this.diet = diet;
         this.originCountry = originCountry;
         this.age = age;
-        this.gender = gender;
+        this.gender = gender == null ? Gender.UNKNOWN : gender;
         this.canSwim = canSwim;
         this.canFly = canFly;
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getName() {
         return name;
@@ -86,20 +109,20 @@ public class AnimalEntity {
         this.originCountry = originCountry;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
+    public void setGender(Gender gender) {
+        this.gender = (gender == null ? Gender.UNKNOWN : gender);
     }
 
     public boolean isCanSwim() {

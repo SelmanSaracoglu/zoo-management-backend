@@ -12,6 +12,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    private static final String[] SWAGGER_WHITELIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+    };
+
     private final JwtAuthFilter jwtAuthFilter;
     public  SecurityConfig(JwtAuthFilter jwtAuthFilter) {this.jwtAuthFilter = jwtAuthFilter;}
 
@@ -21,7 +28,8 @@ public class SecurityConfig {
         http
            .csrf(csrf -> csrf.disable())
            .authorizeHttpRequests(auth -> auth
-           .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+           .requestMatchers(SWAGGER_WHITELIST).permitAll()
+           .requestMatchers("/api/auth/**", "/ping").permitAll()
            .requestMatchers(HttpMethod.POST,   "/api/animals/**").hasRole("ADMIN")
            .requestMatchers(HttpMethod.PUT,    "/api/animals/**").hasRole("ADMIN")
            .requestMatchers(HttpMethod.DELETE, "/api/animals/**").hasRole("ADMIN")

@@ -17,78 +17,75 @@ public class AnimalService {
         this.animalRepository = animalRepository;
     }
 
-    // Entity → DTO
-    private AnimalDTO convertToDTO(AnimalEntity animal) {
+    /* Entity -> DTO */
+    private AnimalDTO toDTO(AnimalEntity e) {
+        if (e == null) return null;
         return new AnimalDTO(
-                animal.getId(),
-                animal.getName(),
-                animal.getSpecies(),
-                animal.getHabitat(),
-                animal.getDiet(),
-                animal.getOriginCountry(),
-                animal.getAge(),
-                animal.getGender(),
-                animal.isCanSwim(),
-                animal.isCanFly()
+                e.getId(),
+                e.getName(),
+                e.getSpecies(),
+                e.getHabitat(),
+                e.getDiet(),
+                e.getOriginCountry(),
+                e.getAge(),                                              // Integer (nullable)
+                e.getGender() == null ? Gender.UNKNOWN : e.getGender(), // Enum
+                e.isCanSwim(),
+                e.isCanFly()
         );
     }
 
-    // DTO → Entity
-    private AnimalEntity convertToEntity(AnimalDTO dto){
-        AnimalEntity animal = new AnimalEntity();
-        animal.setName(dto.getName());
-        animal.setSpecies(dto.getSpecies());
-        animal.setHabitat(dto.getHabitat());
-        animal.setDiet(dto.getDiet());
-        animal.setOriginCountry(dto.getOriginCountry());
-        animal.setAge(dto.getAge());
-        animal.setGender(dto.getGender());
-        animal.setCanFly(dto.isCanFly());
-        animal.setCanSwim(dto.isCanSwim());
-        return animal;
+    /* DTO -> Entity (create/update ortak) */
+    private AnimalEntity applyFromDto(AnimalEntity t, AnimalDTO dto) {
+        t.setName(dto.getName());
+        t.setSpecies(dto.getSpecies());
+        t.setHabitat(dto.getHabitat());
+        t.setDiet(dto.getDiet());
+        t.setOriginCountry(dto.getOriginCountry());
+
+        // age: null veya <=0 ise DB'de NULL tut
+        Integer a = dto.getAge();
+        t.setAge(a == null || a.intValue() <= 0 ? null : a);
+
+        // gender: null ise UNKNOWN
+        t.setGender(dto.getGender() == null ? Gender.UNKNOWN : dto.getGender());
+
+        t.setCanSwim(dto.isCanSwim());
+        t.setCanFly(dto.isCanFly());
+        return t;
     }
 
     // CREATE
     public AnimalDTO createAnimal(AnimalDTO dto){
-        AnimalEntity animal = convertToEntity(dto);
+        AnimalEntity animal = new AnimalEntity();
+        applyFromDto(animal, dto);
         AnimalEntity saved = animalRepository.save(animal);
-        return convertToDTO(saved);
+        return toDTO(saved);
     }
 
     // READ - All
     public List<AnimalDTO> getAllAnimals() {
         return animalRepository.findAll()
                 .stream()
-                .map(this::convertToDTO)
-                .collect(java.util.stream.Collectors.toList());
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     public Page<AnimalDTO> getAnimalsPage(Pageable pageable) {
         return animalRepository.findAll(pageable)
-                .map(this::convertToDTO); // Aynı mapper'ı kullan
+                .map(this::toDTO);
     }
 
     // READ - One
     public Optional<AnimalDTO> getAnimalById(Long id) {
-        return animalRepository.findById(id)
-                .map(this::convertToDTO);
+        return animalRepository.findById(id).map(this::toDTO);
     }
 
     // UPDATE
     public Optional<AnimalDTO> updateAnimal(Long id, AnimalDTO dto) {
         return animalRepository.findById(id).map(existing -> {
-            existing.setName(dto.getName());
-            existing.setSpecies(dto.getSpecies());
-            existing.setHabitat(dto.getHabitat());
-            existing.setDiet(dto.getDiet());
-            existing.setOriginCountry(dto.getOriginCountry());
-            existing.setAge(dto.getAge());
-            existing.setGender(dto.getGender());
-            existing.setCanFly(dto.isCanFly());
-            existing.setCanSwim(dto.isCanSwim());
-
+            applyFromDto(existing, dto);
             AnimalEntity saved = animalRepository.save(existing);
-            return convertToDTO(saved);
+            return toDTO(saved);
         });
     }
 
@@ -96,5 +93,4 @@ public class AnimalService {
     public void deleteAnimal(Long id) {
         animalRepository.deleteById(id);
     }
-
 }

@@ -1,5 +1,8 @@
 package com.zoo.animal;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 
 public class AnimalDTO {
@@ -23,8 +26,9 @@ public class AnimalDTO {
     @Min(0) @Max(200)
     private Integer age;
 
-    @Pattern(regexp = "MALE|FEMALE|UNKNOWN", message = "gender must be MALE, FEMALE or UNKNOWN")
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16)
+    private Gender gender;
 
     private boolean canSwim;
     private boolean canFly;
@@ -33,7 +37,7 @@ public class AnimalDTO {
     }
 
     public AnimalDTO(Long id, String name, String species, String habitat, String diet,
-                     String originCountry, int age, String gender, boolean canSwim, boolean canFly) {
+                     String originCountry, Integer age, Gender gender, boolean canSwim, boolean canFly) {
         this.id = id;
         this.name = name;
         this.species = species;
@@ -93,19 +97,17 @@ public class AnimalDTO {
         this.originCountry = originCountry;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
-    public String getGender() {
-        return gender;
-    }
+    public Gender getGender() { return gender; }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/animals")
+@RequestMapping("/api/v1/animals")
 public class AnimalController {
     private final AnimalService animalService;
 

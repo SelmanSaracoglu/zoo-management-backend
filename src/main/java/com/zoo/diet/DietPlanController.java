@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/v1")
 public class DietPlanController {
     private final DietPlanService dietPlanService;
 
@@ -16,7 +16,7 @@ public class DietPlanController {
     }
 
     // Create plan for an animal (DTO'suz)
-    @PostMapping("/api/animals/{animalId}/diet-plans")
+    @PostMapping("/animals/{animalId}/diet-plans")
     public ResponseEntity<DietPlanEntity> createForAnimal(
             @PathVariable Long animalId,
             @RequestBody DietPlanEntity body) {
@@ -26,12 +26,12 @@ public class DietPlanController {
     }
 
     // List plans by animal
-    @GetMapping("/api/animals/{animalId}/diet-plans")
+    @GetMapping("/animals/{animalId}/diet-plans")
     public ResponseEntity<List<DietPlanEntity>> listByAnimal(@PathVariable Long animalId) {
         return ResponseEntity.ok(dietPlanService.findByAnimal(animalId));
     }
 
-    @GetMapping("/api/animals/{animalId}/diet-plans/latest")
+    @GetMapping("/animals/{animalId}/diet-plans/latest")
     public ResponseEntity<DietPlanEntity> latest(@PathVariable Long animalId) {
         return dietPlanService.latestByAnimal(animalId)
                 .map(ResponseEntity::ok)
@@ -39,7 +39,7 @@ public class DietPlanController {
     }
 
     // Get one
-    @GetMapping("/api/diet-plans/{planId}")
+    @GetMapping("/diet-plans/{planId}")
     public ResponseEntity<DietPlanEntity> getOne(@PathVariable Long planId) {
         return dietPlanService.findById(planId)
                 .map(ResponseEntity::ok)
@@ -47,7 +47,7 @@ public class DietPlanController {
     }
 
     // Update (ID sabit, animal sabit)
-    @PutMapping("/api/diet-plans/{planId}")
+    @PutMapping("/diet-plans/{planId}")
     public ResponseEntity<DietPlanEntity> update(
             @PathVariable Long planId,
             @RequestBody DietPlanEntity body) {
@@ -58,7 +58,7 @@ public class DietPlanController {
     }
 
     // Delete
-    @DeleteMapping("/api/diet-plans/{planId}")
+    @DeleteMapping("/diet-plans/{planId}")
     public ResponseEntity<Void> delete(@PathVariable Long planId) {
         dietPlanService.delete(planId);
         return ResponseEntity.noContent().build();
