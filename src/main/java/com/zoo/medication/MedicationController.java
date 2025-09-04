@@ -1,68 +1,90 @@
+// src/main/java/com/zoo/medication/MedicationController.java
 package com.zoo.medication;
 
-
-import org.springframework.format.annotation.DateTimeFormat;
+import com.zoo.medication.MedicationDto;
+import com.zoo.medication.MedicationMapper;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class MedicationController {
 
-    private final MedicationService medicationService;
+    private final MedicationService service;
 
-    public MedicationController(MedicationService medicationService) {
-        this.medicationService = medicationService;
-    }
+    public MedicationController(MedicationService service) { this.service = service; }
 
-    // Create medication for an animal
+    // POST /api/v1/animals/{animalId}/medications
     @PostMapping("/animals/{animalId}/medications")
-    public ResponseEntity<MedicationEntity> create(
-            @PathVariable Long animalId,
-            @RequestBody MedicationEntity body
-    ) {
-        return ResponseEntity.ok(medicationService.createForAnimal(animalId, body));
+    public ResponseEntity<MedicationDto> create(@PathVariable Long animalId,
+                                                @RequestBody @Valid MedicationDto body) {
+        if (body.getAnimalId() == null || !body.getAnimalId().equals(animalId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        MedicationEntity created = service.create(animalId, toEntity(body));
+        MedicationDto out = MedicationMapper.toDto(created);
+        return ResponseEntity.created(URI.create("/api/v1/medications/" + out.getId())).body(out);
     }
 
-    // List medications by animal (optional date range)
+    // GET /api/v1/animals/{animalId}/medications?page=&size=&sort=&medLike=&route=&from=&to=
     @GetMapping("/animals/{animalId}/medications")
-    public ResponseEntity<List<MedicationEntity>> list( @PathVariable Long animalId    )
-    { return ResponseEntity.ok(medicationService.listByAnimal(animalId)); }
+    public ResponseEntity<Page<MedicationDto>> list(
+            @PathVariable Long animalId,
+            @RequestParam(required = false) String medLike,
+            @RequestParam(required = false) String route,
+            @RequestParam(required = false) LocalDateTime from,
+            @RequestParam(required = false) LocalDateTime to,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "givenAt,desc") String sort) {
 
-    // Latest by animal (opsiyonel)
-    @GetMapping("/animals/{animalId}/medications/latest")
-    public ResponseEntity<MedicationEntity> latest(@PathVariable Long animalId) {
-        return medicationService.latestByAnimal(animalId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.noContent().build()); // 204 if none
+        String[] s = sort.split(",");
+        String prop = (s.length > 0 ? s[0] : "givenAt");
+        if (!prop.equals("givenAt") && !prop.equals("id") && !prop.equals("medName")) prop = "givenAt";
+        Sort.Direction dir = (s.length > 1 && "asc".equalsIgnoreCase(s[1])) ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, prop));
+
+        Page<MedicationDto> out = service
+                .list(animalId, medLike, route, from, to, pageable)
+                .map(MedicationMapper::toDto);
+
+        return ResponseEntity.ok(out);
     }
 
-    // Get one
-    @GetMapping("/medications/{medId}")
-    public ResponseEntity<MedicationEntity> getOne(@PathVariable Long medId) {
-        return medicationService.findById(medId)
-                .map(ResponseEntity::ok)
+    // GET /api/v1/medications/{id}
+    @GetMapping("/medications/{id}")
+    public ResponseEntity<MedicationDto> get(@PathVariable Long id) {
+        return service.get(id)
+                .map(e -> ResponseEntity.ok(MedicationMapper.toDto(e)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Update
-    @PutMapping("/medications/{medId}")
-    public ResponseEntity<MedicationEntity> update(
-            @PathVariable Long medId,
-            @RequestBody MedicationEntity body
-    ) {
-        return medicationService.update(medId, body)
-                .map(ResponseEntity::ok)
+    // PUT /api/v1/medications/{id}
+    @PutMapping("/medications/{id}")
+    public ResponseEntity<MedicationDto> update(@PathVariable Long id,
+                                                @RequestBody @Valid MedicationDto body) {
+        return service.update(id, toEntity(body))
+                .map(e -> ResponseEntity.ok(MedicationMapper.toDto(e)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Delete
-    @DeleteMapping("/medications/{medId}")
-    public ResponseEntity<Void> delete(@PathVariable Long medId) {
-        medicationService.delete(medId);
+    // DELETE /api/v1/medications/{id}
+    @DeleteMapping("/medications/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // --- helper ---
+    private MedicationEntity toEntity(MedicationDto d){
+        MedicationEntity e = new MedicationEntity();
+        MedicationMapper.copyToEntity(d, e);
+        return e;
     }
 }

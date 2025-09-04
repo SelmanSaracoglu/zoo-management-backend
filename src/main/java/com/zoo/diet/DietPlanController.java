@@ -2,6 +2,10 @@ package com.zoo.diet;
 
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,9 +39,27 @@ public class DietPlanController {
 
     // GET /api/v1/animals/{animalId}/diet-plans
     @GetMapping("/animals/{animalId}/diet-plans")
-    public ResponseEntity<List<DietPlanDto>> listByAnimal(@PathVariable Long animalId) {
-        List<DietPlanDto> out = dietPlanService.findByAnimal(animalId)
-                .stream().map(DietPlanMapper::toDto).toList();
+    public ResponseEntity<Page<DietPlanDto>> listByAnimal(
+            @PathVariable Long animalId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "startDate,desc") String sort) {
+
+        // güvenli sıralama alanları
+        String[] arr = sort.split(",");
+        String prop = (arr.length > 0 ? arr[0] : "startDate");
+        if (!prop.equals("startDate") && !prop.equals("endDate") && !prop.equals("id")) {
+            prop = "startDate";
+        }
+        Sort.Direction dir = (arr.length > 1 && "asc".equalsIgnoreCase(arr[1]))
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, prop));
+
+        Page<DietPlanDto> out = dietPlanService
+                .findByAnimal(animalId, pageable)
+                .map(DietPlanMapper::toDto);
+
         return ResponseEntity.ok(out);
     }
 
