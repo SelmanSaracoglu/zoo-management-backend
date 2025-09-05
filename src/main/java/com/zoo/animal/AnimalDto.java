@@ -5,7 +5,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 
-public class AnimalDTO {
+public class AnimalDto {
     private Long id;
 
     @NotBlank @Size(max = 120)
@@ -14,16 +14,11 @@ public class AnimalDTO {
     @NotBlank @Size(max = 120)
     private String species;
 
-    @Size(max = 120)
-    private String habitat;
+    @Size(max = 120) private String habitat;
+    @Size(max = 120) private String diet;
+    @Size(max = 120) private String originCountry;
 
-    @Size(max = 120)
-    private String diet;
-
-    @Size(max = 120)
-    private String originCountry;
-
-    @Min(0) @Max(200)
+    @Min(0) @Max(300)
     private Integer age;
 
     @Enumerated(EnumType.STRING)
@@ -33,21 +28,7 @@ public class AnimalDTO {
     private boolean canSwim;
     private boolean canFly;
 
-    public AnimalDTO() {
-    }
-
-    public AnimalDTO(Long id, String name, String species, String habitat, String diet,
-                     String originCountry, Integer age, Gender gender, boolean canSwim, boolean canFly) {
-        this.id = id;
-        this.name = name;
-        this.species = species;
-        this.habitat = habitat;
-        this.diet = diet;
-        this.originCountry = originCountry;
-        this.age = age;
-        this.gender = gender;
-        this.canSwim = canSwim;
-        this.canFly = canFly;
+    public AnimalDto() {
     }
 
     // Getter ve Setter'lar burada...
@@ -56,11 +37,11 @@ public class AnimalDTO {
     public Long getId() {
         return id;
     }
+    public void setId(Long id) { this.id = id; }
 
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -68,7 +49,6 @@ public class AnimalDTO {
     public String getSpecies() {
         return species;
     }
-
     public void setSpecies(String species) {
         this.species = species;
     }
@@ -76,7 +56,6 @@ public class AnimalDTO {
     public String getHabitat() {
         return habitat;
     }
-
     public void setHabitat(String habitat) {
         this.habitat = habitat;
     }
@@ -84,7 +63,6 @@ public class AnimalDTO {
     public String getDiet() {
         return diet;
     }
-
     public void setDiet(String diet) {
         this.diet = diet;
     }
@@ -92,7 +70,6 @@ public class AnimalDTO {
     public String getOriginCountry() {
         return originCountry;
     }
-
     public void setOriginCountry(String originCountry) {
         this.originCountry = originCountry;
     }
@@ -100,13 +77,11 @@ public class AnimalDTO {
     public Integer getAge() {
         return age;
     }
-
     public void setAge(Integer age) {
         this.age = age;
     }
 
     public Gender getGender() { return gender; }
-
     public void setGender(Gender gender) {
         this.gender = gender;
     }
@@ -114,7 +89,6 @@ public class AnimalDTO {
     public boolean isCanSwim() {
         return canSwim;
     }
-
     public void setCanSwim(boolean canSwim) {
         this.canSwim = canSwim;
     }
@@ -122,7 +96,6 @@ public class AnimalDTO {
     public boolean isCanFly() {
         return canFly;
     }
-
     public void setCanFly(boolean canFly) {
         this.canFly = canFly;
     }

@@ -1,58 +1,68 @@
+// src/main/java/com/zoo/staff/StaffController.java
 package com.zoo.staff;
 
-import com.zoo.animal.AnimalDTO; // eğer animals listesine döneceksek kullanırız, şimdilik id listesi yeter
+import com.zoo.staff.StaffDto;
+import com.zoo.staff.StaffMapper;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.net.URI;
 
 @RestController
-@RequestMapping("/api/staff")
+@RequestMapping("/api/v1/staff")
 public class StaffController {
 
-    private final StaffService staffService;
-    public StaffController(StaffService staffService) { this.staffService = staffService; }
-
-    @GetMapping
-    public ResponseEntity<List<StaffDTO>> list() { return ResponseEntity.ok(staffService.list()); }
+    private final StaffService service;
+    public StaffController(StaffService service){ this.service = service; }
 
     @PostMapping
-    public ResponseEntity<StaffDTO> create(@RequestBody StaffDTO dto) {
-        return ResponseEntity.ok(staffService.create(dto));
+    public ResponseEntity<StaffDto> create(@RequestBody @Valid StaffDto body){
+        StaffEntity created = service.create(body);
+        StaffDto out = StaffMapper.toDto(created);
+        return ResponseEntity.created(URI.create("/api/v1/staff/" + out.getId())).body(out);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<StaffDto>> list(
+            @RequestParam(required=false) String role,
+            @RequestParam(required=false) String nameLike,
+            @RequestParam(required=false) String emailLike,
+            @RequestParam(required=false) Long animalId,
+            @RequestParam(defaultValue="0") int page,
+            @RequestParam(defaultValue="10") int size,
+            @RequestParam(defaultValue="id,desc") String sort) {
+
+        String[] s = sort.split(",");
+        String prop = (s.length>0 ? s[0] : "id");
+        if (!prop.equals("id") && !prop.equals("name") && !prop.equals("role")) prop = "id";
+        Sort.Direction dir = (s.length>1 && "asc".equalsIgnoreCase(s[1])) ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, prop));
+
+        Page<StaffDto> out = service.list(role, nameLike, emailLike, animalId, pageable)
+                .map(StaffMapper::toDto);
+
+        return ResponseEntity.ok(out);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StaffDTO> get(@PathVariable Long id) {
-        return staffService.get(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<StaffDto> get(@PathVariable Long id){
+        return service.get(id).map(e -> ResponseEntity.ok(StaffMapper.toDto(e)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StaffDTO> update(@PathVariable Long id, @RequestBody StaffDTO dto) {
-        return staffService.update(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<StaffDto> update(@PathVariable Long id, @RequestBody @Valid StaffDto body){
+        return service.update(id, body)
+                .map(e -> ResponseEntity.ok(StaffMapper.toDto(e)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        staffService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // FE: /staff/{staffId}/animals  (id listesi)
-    @GetMapping("/{staffId}/animals")
-    public ResponseEntity<List<Long>> getAssignedAnimalIds(@PathVariable Long staffId) {
-        return ResponseEntity.ok(staffService.getAssignedAnimalIds(staffId));
-    }
-
-    // FE: /staff/{staffId}/assign/{animalId}
-    @PostMapping("/{staffId}/assign/{animalId}")
-    public ResponseEntity<Void> assign(@PathVariable Long staffId, @PathVariable Long animalId) {
-        staffService.assign(staffId, animalId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/{staffId}/assign/{animalId}")
-    public ResponseEntity<Void> unassign(@PathVariable Long staffId, @PathVariable Long animalId) {
-        staffService.unassign(staffId, animalId);
+    public ResponseEntity<Void> delete(@PathVariable Long id){
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
