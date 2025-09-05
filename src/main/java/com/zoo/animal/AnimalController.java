@@ -1,10 +1,12 @@
 // src/main/java/com/zoo/animal/AnimalController.java
 package com.zoo.animal;
 
+import com.zoo.animal.AnimalEntity;
 import com.zoo.animal.AnimalDto;
 import com.zoo.animal.AnimalMapper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +27,7 @@ public class AnimalController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<AnimalDto>> list(
+    public ResponseEntity<Page<AnimalPublicDto>> list(
             @RequestParam(required=false) String species,
             @RequestParam(required=false) String nameLike,
             @RequestParam(required=false) String originCountry,
@@ -46,24 +48,27 @@ public class AnimalController {
                 ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(dir, prop));
-        Page<AnimalDto> out = service
+        Page<AnimalPublicDto> out = service
                 .list(species, nameLike, originCountry, gender, canSwim, canFly, minAge, maxAge, pageable)
-                .map(AnimalMapper::toDto);
+                .map(AnimalMapper::toPublicDto);
 
         return ResponseEntity.ok(out);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AnimalDto> get(@PathVariable Long id){
-        return service.get(id).map(e -> ResponseEntity.ok(AnimalMapper.toDto(e)))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AnimalPublicDto> get(@PathVariable Long id) {
+        return service.get(id)
+                .map(AnimalMapper::toPublicDto) // <-- public alanlar
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AnimalDto> update(@PathVariable Long id, @RequestBody @Valid AnimalDto body){
         return service.update(id, body)
-                .map(e -> ResponseEntity.ok(AnimalMapper.toDto(e)))
-                .orElse(ResponseEntity.notFound().build());
+                .map(AnimalMapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).<AnimalDto>build());
     }
 
     @DeleteMapping("/{id}")

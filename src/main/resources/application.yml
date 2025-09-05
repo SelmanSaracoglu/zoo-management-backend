@@ -34,3 +34,8 @@ app:
 # CORS (education purpose)
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:5173,*"
+
+ratelimit:
+  animals:
+    capacity: 60      # dakikalık kova kapasitesi
+    refill: 60        # dakikada eklenecek token

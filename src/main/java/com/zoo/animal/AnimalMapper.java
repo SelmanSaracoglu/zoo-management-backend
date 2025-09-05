@@ -29,4 +29,15 @@ public class AnimalMapper {
         e.setCanSwim(d.isCanSwim());
         e.setCanFly(d.isCanFly());
     }
+
+    public static AnimalPublicDto toPublicDto(AnimalEntity e) {
+        if (e == null) return null;
+        AnimalPublicDto d = new AnimalPublicDto();
+        d.setId(e.getId());
+        d.setName(e.getName());
+        d.setSpecies(e.getSpecies());
+        d.setAge(e.getAge());
+        d.setHabitat(e.getHabitat());
+        return d;
+    }
 }

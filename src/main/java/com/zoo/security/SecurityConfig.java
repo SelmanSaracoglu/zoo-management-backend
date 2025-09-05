@@ -34,9 +34,9 @@ public class SecurityConfig {
            .authorizeHttpRequests(auth -> auth
            .requestMatchers(SWAGGER_WHITELIST).permitAll()
            .requestMatchers("/api/v1/auth/**", "/ping").permitAll()
-           .requestMatchers(HttpMethod.POST,   "/api/animals/**").hasRole("ADMIN")
-           .requestMatchers(HttpMethod.PUT,    "/api/animals/**").hasRole("ADMIN")
-           .requestMatchers(HttpMethod.DELETE, "/api/animals/**").hasRole("ADMIN")
+           .requestMatchers(HttpMethod.POST,   "/api/v1/animals/**").hasRole("ADMIN")
+           .requestMatchers(HttpMethod.PUT,    "/api/v1/animals/**").hasRole("ADMIN")
+           .requestMatchers(HttpMethod.DELETE, "/api/v1/animals/**").hasRole("ADMIN")
            .anyRequest().authenticated()
         )
                 .exceptionHandling(ex -> ex
